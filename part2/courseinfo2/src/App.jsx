@@ -1,18 +1,18 @@
 const Course = (props) => {
-  console.log('init props', props.course.parts)
   return (
     <>
-    <Header course={props.course.name}/>
-    <Content course={props.course.parts} />
+      {props.map(course => 
+        <Header course={course.name}/>
+        <Content course={course.parts} />
+        <Total course={course.parts} />
+      )}
     </>
   )
 }
 
-
 const Header = (props) => <><h1>{props.course}</h1></>
 
 const Content = (props) => {
-  // console.log('before assignment', props.course)
   return (
   <div>
     {props.course.map(part => 
@@ -32,7 +32,15 @@ const Part = (props) => {
   )
 }
 
-const Total = (props) => <p>Number of exercises {props.total}</p>
+const Total = (props) => {
+  const total = props.parts.reduce(
+  	(sum, value) => sum + value.exercises,
+  	0,
+  	);  
+  return (
+  <p>Number of exercises {total}</p>
+  )
+}
 
 const App = () => {
   const course = {
