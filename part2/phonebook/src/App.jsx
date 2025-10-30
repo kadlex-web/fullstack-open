@@ -1,27 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import AddPersonForm from './components/AddPersonForm'
 import PersonsList from './components/PersonsList'
+import AxiosHelper from './components/AxiosHelper'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
-
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterPhrase, setFilterPhrase] = useState('')
   const [showAll, setShowAll] = useState(true)
   
+  // Effect hook to fetch json data from local db and generate initial list within the App for displaying
+  useEffect(() => {
+    AxiosHelper
+    .getAll()
+    .then(initialPersons => {
+      setPersons(initialPersons)
+    })
+  }, [])
+
   const addPerson = (event) => {
     event.preventDefault()
     //need to check if name already exists in the phone book before creating the object
     // create an array of names using map function
     const names = persons.map(person => person.name)
-    
     //check if name is within names list
     if (names.includes(newName)) {
       // if it is, prompt an alert message and don't add the name
@@ -32,11 +35,15 @@ const App = () => {
       const personObject = {
         name: newName,
         number: newNumber,
-        id: newName + persons.length
       }
-      setPersons(persons.concat(personObject))
-      setNewName('')
-      setNewNumber('')
+      // Generate a Post request and send to the URL containing the person Object payload. Then take the data sent and update the persons State
+      AxiosHelper
+        .create(personObject)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          setNewName('')
+          setNewNumber('')
+        })
       }
   }
   // declare a conditional statement which is used to generate filtered views
